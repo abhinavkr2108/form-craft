@@ -3,12 +3,18 @@ import Header from "@/components/shared/Header";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
+import { db } from "@/database";
+import FormsList from "@/components/shared/FormsList";
 
-export default function Home() {
+export default async function Home() {
+  const forms = await db.query.forms.findMany();
   return (
     <SessionProvider>
       <Header />
-      <FormGenerator />
+      <div className="container mx-auto">
+        <FormGenerator />
+        <FormsList forms={forms} />
+      </div>
     </SessionProvider>
   );
 }

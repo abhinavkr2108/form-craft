@@ -15,6 +15,8 @@ import { Textarea } from "../ui/textarea";
 import { generateForm } from "@/app/actions/generateForm";
 import { useFormState, useFormStatus } from "react-dom";
 import { signIn, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { navigate } from "@/app/actions/navigateToForm";
 
 export function SubmitButton() {
   const { pending } = useFormStatus();
@@ -40,8 +42,9 @@ export default function FormGenerator() {
   useEffect(() => {
     if (state.message === "Success") {
       setOpen(false);
+      navigate(state.data.formId);
     }
-  }, [state.message]);
+  }, [state.message, state.data]);
   console.log(state.data);
 
   const onFormCreate = () => {
