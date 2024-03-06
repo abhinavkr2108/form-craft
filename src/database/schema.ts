@@ -106,6 +106,7 @@ export const formRelations = relations(forms, ({ many, one }) => ({
     fields: [forms.userId],
     references: [users.id],
   }), // one to many
+  submissions: many(formSubmissions),
 }));
 
 /**
@@ -119,6 +120,7 @@ export const questionsRelations = relations(questions, ({ many, one }) => ({
     references: [forms.id],
   }),
   fieldOptions: many(fieldOptions), // one to many
+  answers: many(answers),
 }));
 
 /**
@@ -131,3 +133,83 @@ export const fieldOptionsRelations = relations(fieldOptions, ({ one }) => ({
     references: [questions.id],
   }),
 }));
+
+/**
+ * 
+    Stores individual answers to questions within a form submission.
+    Columns:
+        id: A unique identifier for each answer.
+        formSubmissionId: Links each answer to its corresponding form submission.
+        questionId: Links each answer to the question it addresses.
+        value: The text of the answer.
+        fieldOptionsId: Optionally links each answer to predefined options for the question.
+
+ */
+
+export const answers = pgTable("answers", {
+  id: serial("id").notNull().primaryKey(),
+  formSubmissionId: integer("form_submission_id").notNull(),
+  questionId: integer("question_id").notNull(),
+  value: text("value"),
+  fieldOptionsId: integer("field_options_id"),
+});
+
+/**
+ * 
+    answerRelations:
+        Defines relationships between the answers table and other tables.
+        Relationships:
+            formSubmission: Each answer is linked to a form submission.
+            question: Each answer is linked to a specific question.
+            fieldOptions: Each answer can optionally be linked to predefined field options.
+
+ */
+export const answerRelations = relations(answers, ({ one }) => ({
+  formSubmission: one(formSubmissions, {
+    fields: [answers.formSubmissionId],
+    references: [formSubmissions.id],
+  }),
+  question: one(questions, {
+    fields: [answers.questionId],
+    references: [questions.id],
+  }),
+  fieldOptions: one(fieldOptions, {
+    fields: [answers.fieldOptionsId],
+    references: [fieldOptions.id],
+  }),
+}));
+
+/**
+ * 
+    formSubmissions Table:
+        Stores information about form submissions.
+        Columns:
+            id: A unique identifier for each form submission.
+            formId: Links each submission to the form it was submitted to.
+
+ */
+
+export const formSubmissions = pgTable("formSubmissions", {
+  id: serial("id").notNull().primaryKey(),
+  formId: integer("form_id").notNull(),
+});
+
+/**
+ * 
+    formSubmissionRelations:
+        Defines relationships between the formSubmissions table and other tables.
+        Relationships:
+            form: Each form submission is linked to a form.
+            answers: Each form submission can have multiple answers.
+
+ */
+export const formSubmissionRelations = relations(
+  formSubmissions,
+  ({ one, many }) => ({
+    form: one(forms, {
+      fields: [formSubmissions.formId],
+      references: [forms.id],
+    }),
+    answers: many(answers),
+  })
+);

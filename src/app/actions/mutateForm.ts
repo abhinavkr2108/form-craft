@@ -7,6 +7,7 @@ import {
   questions as dbQuestions,
   fieldOptions,
 } from "@/database/schema";
+import { eq } from "drizzle-orm";
 
 type FieldType = "RadioGroup" | "Select" | "Input" | "Textarea" | "Switch";
 interface Question {
@@ -83,6 +84,18 @@ export async function saveForm(data: SaveFormData) {
     console.error(error);
     return {
       message: "Failed to save form",
+      error: error,
+    };
+  }
+}
+
+export async function publishForm(formId: number) {
+  try {
+    await db.update(forms).set({ published: true }).where(eq(forms.id, formId));
+  } catch (error) {
+    console.error(error);
+    return {
+      message: "Failed to publish form",
       error: error,
     };
   }

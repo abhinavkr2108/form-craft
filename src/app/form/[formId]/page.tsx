@@ -1,17 +1,18 @@
+import SingleForm from "@/components/shared/SingleForm";
 import { db } from "@/database";
 import React from "react";
 import { forms } from "@/database/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
-import SingleForm from "@/components/shared/SingleForm";
 
-interface FormDetailPageProps {
+interface SubmitFormPageProps {
   params: {
     formId: string;
   };
 }
-export default async function FormDetailPage(props: FormDetailPageProps) {
+export default async function SubmitFormPage(props: SubmitFormPageProps) {
   const formId = props.params.formId;
+
   const session = await auth();
 
   if (!formId) {
@@ -38,7 +39,7 @@ export default async function FormDetailPage(props: FormDetailPageProps) {
   }
   return (
     <div>
-      <SingleForm form={form} editMode={true} />
+      <SingleForm form={form} editMode={false} />
     </div>
   );
 }
