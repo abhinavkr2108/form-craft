@@ -1,6 +1,6 @@
 import { getUserForms } from "@/app/actions/getUserForm";
 import { auth } from "@/auth";
-import FormsList from "@/components/shared/FormsList";
+import FormsList from "./components/FormList";
 import Navbar from "@/components/shared/Sidenav";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
@@ -19,7 +19,7 @@ export default async function ViewFormPage() {
   return (
     <SessionProvider>
       <div className="container mx-auto">
-        <h1 className="text-2xl font-bold text-center py-8">Your Forms Here</h1>
+        <h1 className="text-2xl font-bold text-center">Your Forms Here</h1>
         <FormsList forms={forms} />
       </div>
     </SessionProvider>

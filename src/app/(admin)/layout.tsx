@@ -11,7 +11,7 @@ export default async function AdminLayout({
   return (
     <div>
       <Navbar session={session} />
-      {children}
+      <div className="pt-8">{children}</div>
     </div>
   );
 }

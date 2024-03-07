@@ -59,12 +59,7 @@ export default function Navbar({ session }: NavbarProps) {
               )}
             </button>
             <div className="inline-block ml-4">
-              <a
-                href="javascript:void(0)"
-                className="py-3 px-4 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow"
-              >
-                Get Started
-              </a>
+              <UserAvatar session={session} />
             </div>
           </div>
         </div>
