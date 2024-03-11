@@ -1,25 +1,68 @@
 import React from "react";
 import FormGenerator from "./FormGenerator";
+import UserSubscriptionWrapper from "./UserSubscriptionWrapper";
+import { auth } from "@/auth";
+import { getSubscription } from "@/app/actions/userSubscriptions";
+import { eq } from "drizzle-orm";
+import { forms, users } from "@/database/schema";
+import { db } from "@/database";
+import { MAX_FREE_FORMS } from "@/lib/constants";
+import { Button } from "../ui/button";
 
-export default function LandingPage() {
-  return (
-    <div>
-      <section className="py-12 flex flex-col items-center justify-center gap-5 w-full bg-[url('/grid.svg')] bg-cover'">
-        <h1 className="text-4xl font-bold text-center">
-          Create your forms quickly <br /> with help of AI
-        </h1>
-        <p className="max-w-2xl mx-auto text-center text-lg text-gray-500 font-semibold">
-          Generate, publish and share forms with ease using our AI with results
-          charts and analytics
-        </p>
-        <FormGenerator />
-      </section>
+export default async function LandingPage() {
+  const session = await auth();
+  if (!session || !session?.user?.id) {
+    return null;
+  }
 
-      <section>
-        <FormGeneratingSteps />
-      </section>
-    </div>
-  );
+  const subscription = await getSubscription({ userId: session?.user?.id });
+  const userForms = await db.query.forms.findMany({
+    where: eq(forms.userId, session?.user?.id),
+  });
+  const userFormsCount = userForms.length;
+
+  console.log(subscription, userFormsCount);
+  console.log("SESSION ID", session?.user?.id);
+  console.log("USER ID", users.id);
+  if (subscription === true || userFormsCount < MAX_FREE_FORMS) {
+    return (
+      <div>
+        <section className="py-12 flex flex-col items-center justify-center gap-5 w-full bg-[url('/grid.svg')] bg-cover'">
+          <h1 className="text-4xl font-bold text-center">
+            Create your forms quickly <br /> with help of AI
+          </h1>
+          <p className="max-w-2xl mx-auto text-center text-lg text-gray-500 font-semibold">
+            Generate, publish and share forms with ease using our AI with
+            results charts and analytics
+          </p>
+          <FormGenerator />
+        </section>
+
+        <section>
+          <FormGeneratingSteps />
+        </section>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <section className="py-12 flex flex-col items-center justify-center gap-5 w-full bg-[url('/grid.svg')] bg-cover'">
+          <h1 className="text-4xl font-bold text-center">
+            Create your forms quickly <br /> with help of AI
+          </h1>
+          <p className="max-w-2xl mx-auto text-center text-lg text-gray-500 font-semibold">
+            Generate, publish and share forms with ease using our AI with
+            results charts and analytics
+          </p>
+          <Button disabled>Upgrade to create more forms</Button>
+        </section>
+
+        <section>
+          <FormGeneratingSteps />
+        </section>
+      </div>
+    );
+  }
 }
 
 function FormGeneratingSteps() {

@@ -7,15 +7,11 @@ import { eq } from "drizzle-orm";
 import { signIn } from "next-auth/react";
 import React from "react";
 import { Button } from "../ui/button";
+import FormGenerator from "./FormGenerator";
 
-export default async function UserSubscriptionWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function UserSubscriptionWrapper() {
   const session = await auth();
   if (!session || !session?.user?.id) {
-    signIn();
     return null;
   }
 
@@ -25,7 +21,11 @@ export default async function UserSubscriptionWrapper({
   });
   const userFormsCount = userForms.length;
   if (subscription === true || userFormsCount < MAX_FREE_FORMS) {
-    return <>{children}</>;
+    return (
+      <>
+        <FormGenerator />
+      </>
+    );
   }
 
   return <Button disabled>Upgrade to create more forms</Button>;
