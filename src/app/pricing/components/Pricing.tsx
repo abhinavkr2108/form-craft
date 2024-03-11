@@ -1,88 +1,208 @@
+"use client";
+import { getStripe } from "@/lib/stripe-client";
+import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function Pricing() {
-  const plans = [
-    {
-      name: "Enterprise",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      price: 32,
-      isMostPop: true,
-      link: "/upgrade",
-      features: ["Generate forms using AI", "Unlimited forms per user"],
-    },
-    {
-      name: "Startup",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      price: 0,
-      isMostPop: false,
-      link: "/",
-      features: ["Generate forms using AI", "Maximum 5 forms per user"],
-    },
-  ];
+interface PricingProps {
+  userId: string;
+  price: string;
+}
+export default function Pricing({ userId, price }: PricingProps) {
+  const router = useRouter();
+
+  const handleCheckout = async (price: string) => {
+    if (!userId) {
+      router.push("/api/auth/signin");
+      return;
+    }
+    try {
+      const { sessionId } = await axios
+        .post("/api/stripe/checkout-session", {
+          price,
+        })
+        .then((res) => res.data);
+
+      console.log("SESSION");
+      console.log(sessionId);
+
+      const stripe = await getStripe();
+      stripe?.redirectToCheckout({ sessionId: sessionId });
+    } catch (error) {
+      console.error("Could not redirect to checkout");
+
+      console.error(error);
+    }
+  };
 
   return (
-    <section className="relative py-14">
-      <div
-        className="absolute top-0 w-full h-[521px]"
-        style={{
-          background:
-            "linear-gradient(152.92deg, rgba(184, 233, 134, 0.8) 4.54%, rgba(139, 195, 74, 0.6) 34.2%, rgba(156, 204, 101, 0.4) 77.55%)",
-        }}
-      ></div>
-      <div className="max-w-screen-xl mx-auto text-gray-600 sm:px-4 md:px-8">
-        <div className="relative max-w-xl mx-auto space-y-3 px-4 sm:text-center sm:px-0">
-          <p className="text-gray-800 text-3xl font-semibold sm:text-4xl">
+    <section className="text-gray-600 body-font overflow-hidden">
+      <div className="container px-5 py-24 mx-auto">
+        <div className="flex flex-col text-center w-full mb-20">
+          <h1 className="sm:text-4xl text-3xl font-medium title-font mb-2 text-gray-900">
             Pricing
+          </h1>
+          <p className="lg:w-2/3 mx-auto leading-relaxed text-base text-gray-500">
+            Whatever cardigan tote bag tumblr hexagon brooklyn asymmetrical.
           </p>
-          <div className="max-w-xl">
-            <p>Generate forms for free Upgrade if needed</p>
-          </div>
         </div>
-        <div className="mt-16 justify-center sm:flex">
-          {plans.map((item, idx) => (
-            <div
-              key={idx}
-              className={`relative flex-1 flex items-stretch flex-col mt-6 sm:mt-0 sm:rounded-xl sm:max-w-md ${
-                item.isMostPop ? "bg-white shadow-lg sm:border" : ""
-              }`}
-            >
-              <div className="p-4 py-8 space-y-4 border-b md:p-8">
-                <span className="text-green-600 font-medium">{item.name}</span>
-                <div className="text-gray-800 text-3xl font-semibold">
-                  ${item.price}{" "}
-                  <span className="text-xl text-gray-600 font-normal">/mo</span>
-                </div>
-                <p>{item.desc}</p>
-                <Link href={item.link}>
-                  <button className="px-3 py-3 mt-5 rounded-lg w-full font-semibold text-sm duration-150 text-white bg-green-600 hover:bg-green-500 active:bg-green-700">
-                    Get Started
-                  </button>
-                </Link>
-              </div>
-              <ul className="p-4 py-8 space-y-3 md:p-8">
-                <li className="pb-2 text-gray-800 font-medium">
-                  <p>Features</p>
-                </li>
-                {item.features.map((featureItem, idx) => (
-                  <li key={idx} className="flex items-center gap-5">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-green-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                    {featureItem}
-                  </li>
-                ))}
-              </ul>
+        <div className="flex flex-wrap -m-4">
+          <div className="p-4 xl:w-1/2 md:w-1/2 w-full">
+            <div className="h-full p-6 rounded-lg border-2 border-gray-300 flex flex-col relative overflow-hidden">
+              <h2 className="text-sm tracking-widest title-font mb-1 font-medium">
+                START
+              </h2>
+              <h1 className="text-5xl text-gray-900 pb-4 mb-4 border-b border-gray-200 leading-none">
+                Free
+              </h1>
+              <p className="flex items-center text-gray-600 mb-2">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                Generate Forms with AI
+              </p>
+              <p className="flex items-center text-gray-600 mb-2">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                GPT-3 Support
+              </p>
+              <p className="flex items-center text-gray-600 mb-6">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                Maximum 5 forms per user
+              </p>
+              <Link href={"/"}>
+                <button className="flex items-center mt-auto text-white bg-gray-400 border-0 py-2 px-4 w-full focus:outline-none hover:bg-gray-500 rounded">
+                  Get Started
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    className="w-4 h-4 ml-auto"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </Link>
             </div>
-          ))}
+          </div>
+          <div className="p-4 xl:w-1/2 md:w-1/2 w-full">
+            <div className="h-full p-6 rounded-lg border-2 border-green-500 flex flex-col relative overflow-hidden">
+              <span className="bg-green-500 text-white px-3 py-1 tracking-widest text-xs absolute right-0 top-0 rounded-bl">
+                POPULAR
+              </span>
+              <h2 className="text-sm tracking-widest title-font mb-1 font-medium">
+                PRO
+              </h2>
+              <h1 className="text-5xl text-gray-900 leading-none flex items-center pb-4 mb-4 border-b border-gray-200">
+                <span>$38</span>
+                <span className="text-lg ml-1 font-normal text-gray-500">
+                  /mo
+                </span>
+              </h1>
+              <p className="flex items-center text-gray-600 mb-2">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                Generate forms with AI
+              </p>
+              <p className="flex items-center text-gray-600 mb-2">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                GPT-3 and GPT-4 support
+              </p>
+              <p className="flex items-center text-gray-600 mb-2">
+                <span className="w-4 h-4 mr-2 inline-flex items-center justify-center bg-gray-400 text-white rounded-full flex-shrink-0">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                </span>
+                Unlimited forms per user
+              </p>
+
+              <button
+                className="flex items-center text-center mt-auto text-white bg-green-500 border-0 py-2 px-4 w-full focus:outline-none hover:bg-green-600 rounded"
+                onClick={() => handleCheckout(price)}
+              >
+                Get Started
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  className="w-4 h-4 ml-auto"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
